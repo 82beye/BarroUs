@@ -1,0 +1,128 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>BarroUs — 매거진 적용 시안</title>
+
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Newsreader:ital,opsz,wght@0,6..72,200..800;1,6..72,200..800&family=JetBrains+Mono:wght@300;400;500&display=swap" rel="stylesheet" />
+<link rel="stylesheet" as="style" crossorigin href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.css" />
+
+<script src="https://unpkg.com/react@18.3.1/umd/react.development.js" integrity="sha384-hD6/rw4ppMLGNu3tX5cjIb+uRZ7UkRJ6BPkLpg4hAu/6onKUg4lLsHAs9EBPT82L" crossorigin="anonymous"></script>
+<script src="https://unpkg.com/react-dom@18.3.1/umd/react-dom.development.js" integrity="sha384-u6aeetuaXnQ38mYT8rp6sbXaQe3NL9t+IBXmnYxwkUI2Hw4bsp2Wvmx4yRQF1uAm" crossorigin="anonymous"></script>
+<script src="https://unpkg.com/@babel/standalone@7.29.0/babel.min.js" integrity="sha384-m08KidiNqLdpJqLq95G/LEi8Qvjl/xUYll3QILypMoQ65QorJ9Lvtp2RXYGBFj1y" crossorigin="anonymous"></script>
+
+<style>
+  :root {
+    --bg: #F2EFE7;
+    --ink: #0E0E0E;
+    --muted: #6B6B66;
+    --line: #1A1A1A;
+    --line-soft: rgba(14,14,14,0.18);
+    --accent: #E54A28;
+    --paper: #ECE8DD;
+    --card: #E7E2D3;
+  }
+  html[data-theme="dark"] {
+    --bg: #0C0C0C;
+    --ink: #ECE8DD;
+    --muted: #8A8780;
+    --line: #ECE8DD;
+    --line-soft: rgba(236,232,221,0.18);
+    --paper: #131312;
+    --card: #161614;
+  }
+
+  * { box-sizing: border-box; }
+  html, body { margin: 0; padding: 0; background: #1a1a1a; }
+  body {
+    color: var(--ink);
+    font-family: 'Pretendard', sans-serif;
+    -webkit-font-smoothing: antialiased;
+  }
+  ::selection { background: var(--accent); color: #fff; }
+  .mono { font-family: 'JetBrains Mono', monospace; }
+  .serif { font-family: 'Newsreader', serif; }
+
+  /* Common type primitives reused across screens */
+  .bg-bg { background: var(--bg); color: var(--ink); transition: background 0.4s, color 0.4s; }
+  .nameplate {
+    font-family: 'Newsreader', serif;
+    font-weight: 300;
+    font-style: italic;
+    letter-spacing: -0.02em;
+    line-height: 1;
+  }
+  .nameplate b {
+    font-style: normal;
+    font-weight: 600;
+    font-family: 'Pretendard', sans-serif;
+    letter-spacing: -0.04em;
+  }
+  .meta-rule {
+    font-size: 11px;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--muted);
+  }
+  .display {
+    font-family: 'Pretendard', sans-serif;
+    font-weight: 900;
+    line-height: 0.9;
+    letter-spacing: -0.045em;
+    word-break: keep-all;
+    margin: 0;
+  }
+  .display em {
+    font-family: 'Newsreader', serif;
+    font-style: italic;
+    font-weight: 300;
+  }
+  .display .acc { color: var(--accent); }
+</style>
+</head>
+<body>
+
+<div id="root"></div>
+
+<script type="text/babel" src="design-canvas.jsx"></script>
+<script type="text/babel" src="barrous-screens.jsx"></script>
+<script type="text/babel">
+  const { Landing, Login, Share, Dashboard, ShareMobile } = window;
+
+  function App() {
+    return (
+      <DesignCanvas title="BarroUs — 매거진 적용 시안" subtitle="Next.js 15 + Tailwind v4 — 4개 화면 프로토타입">
+        <DCSection id="public" title="① 외부 노출 화면 — 매거진 톤 풀 적용">
+          <DCArtboard id="landing" label="Landing  /  (신규 제안)" width={1280} height={1800}>
+            <Landing />
+          </DCArtboard>
+          <DCArtboard id="share" label="Share  /p/[shareId]  — 데스크탑" width={1280} height={1800}>
+            <Share />
+          </DCArtboard>
+          <DCArtboard id="share-mobile" label="Share  /p/[shareId]  — 모바일 (390)" width={390} height={1500}>
+            <ShareMobile />
+          </DCArtboard>
+        </DCSection>
+
+        <DCSection id="auth" title="② 진입 화면 — 임팩트 한 장">
+          <DCArtboard id="login" label="Login  /login" width={1280} height={900}>
+            <Login />
+          </DCArtboard>
+        </DCSection>
+
+        <DCSection id="internal" title="③ 작업 공간 — 부분 적용 (정보 밀도 우선)">
+          <DCArtboard id="dashboard" label="Dashboard  /dashboard  — 헤더+그리드만 매거진화" width={1280} height={1700}>
+            <Dashboard />
+          </DCArtboard>
+        </DCSection>
+      </DesignCanvas>
+    );
+  }
+
+  ReactDOM.createRoot(document.getElementById('root')).render(<App />);
+</script>
+</body>
+</html>

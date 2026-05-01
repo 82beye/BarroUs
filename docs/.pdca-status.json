@@ -1,6 +1,6 @@
 {
   "version": "2.0",
-  "lastUpdated": "2026-05-01T07:31:33.760Z",
+  "lastUpdated": "2026-05-01T08:19:58.017Z",
   "activeFeatures": [
     "BarroUs",
     "schema",
@@ -26,9 +26,9 @@
       "documents": {},
       "timestamps": {
         "started": "2026-05-01T03:19:18.364Z",
-        "lastUpdated": "2026-05-01T07:27:10.811Z"
+        "lastUpdated": "2026-05-01T08:19:58.017Z"
       },
-      "lastFile": "/Users/beye/workspace/BarroUs/src/components/playlist-tracks-view.tsx"
+      "lastFile": "/Users/beye/workspace/BarroUs/src/app/page.tsx"
     },
     "schema": {
       "phase": "do",
@@ -78,9 +78,9 @@
       "documents": {},
       "timestamps": {
         "started": "2026-05-01T03:41:32.840Z",
-        "lastUpdated": "2026-05-01T03:41:39.792Z"
+        "lastUpdated": "2026-05-01T08:19:29.088Z"
       },
-      "lastFile": "/Users/beye/workspace/BarroUs/src/app/login/login-button.tsx"
+      "lastFile": "/Users/beye/workspace/BarroUs/src/app/login/page.tsx"
     },
     "auth": {
       "phase": "do",
@@ -104,7 +104,7 @@
       "documents": {},
       "timestamps": {
         "started": "2026-05-01T03:42:10.879Z",
-        "lastUpdated": "2026-05-01T07:28:06.341Z"
+        "lastUpdated": "2026-05-01T08:19:15.843Z"
       },
       "lastFile": "/Users/beye/workspace/BarroUs/src/app/dashboard/page.tsx"
     },
@@ -156,7 +156,7 @@
       "documents": {},
       "timestamps": {
         "started": "2026-05-01T04:45:22.835Z",
-        "lastUpdated": "2026-05-01T07:27:20.884Z"
+        "lastUpdated": "2026-05-01T08:15:18.039Z"
       },
       "lastFile": "/Users/beye/workspace/BarroUs/src/app/p/[shareId]/page.tsx"
     },
@@ -169,7 +169,7 @@
       "documents": {},
       "timestamps": {
         "started": "2026-05-01T07:27:36.572Z",
-        "lastUpdated": "2026-05-01T07:27:36.572Z"
+        "lastUpdated": "2026-05-01T08:17:49.181Z"
       },
       "lastFile": "/Users/beye/workspace/BarroUs/src/app/dashboard/playlist/[nodeId]/page.tsx"
     }
@@ -182,7 +182,7 @@
   "session": {
     "startedAt": "2026-05-01T02:58:56.206Z",
     "onboardingCompleted": false,
-    "lastActivity": "2026-05-01T07:31:33.760Z"
+    "lastActivity": "2026-05-01T08:19:58.017Z"
   },
   "history": [
     {
@@ -620,6 +620,120 @@
     {
       "timestamp": "2026-05-01T07:31:33.760Z",
       "feature": "spotify",
+      "phase": "do",
+      "action": "updated"
+    },
+    {
+      "timestamp": "2026-05-01T08:13:38.698Z",
+      "feature": "BarroUs",
+      "phase": "do",
+      "action": "updated"
+    },
+    {
+      "timestamp": "2026-05-01T08:14:02.276Z",
+      "feature": "dashboard",
+      "phase": "do",
+      "action": "updated"
+    },
+    {
+      "timestamp": "2026-05-01T08:15:18.039Z",
+      "feature": "[shareId]",
+      "phase": "do",
+      "action": "updated"
+    },
+    {
+      "timestamp": "2026-05-01T08:15:36.820Z",
+      "feature": "login",
+      "phase": "do",
+      "action": "updated"
+    },
+    {
+      "timestamp": "2026-05-01T08:15:54.362Z",
+      "feature": "login",
+      "phase": "do",
+      "action": "updated"
+    },
+    {
+      "timestamp": "2026-05-01T08:16:49.196Z",
+      "feature": "dashboard",
+      "phase": "do",
+      "action": "updated"
+    },
+    {
+      "timestamp": "2026-05-01T08:17:04.845Z",
+      "feature": "dashboard",
+      "phase": "do",
+      "action": "updated"
+    },
+    {
+      "timestamp": "2026-05-01T08:17:14.315Z",
+      "feature": "dashboard",
+      "phase": "do",
+      "action": "updated"
+    },
+    {
+      "timestamp": "2026-05-01T08:17:22.300Z",
+      "feature": "dashboard",
+      "phase": "do",
+      "action": "updated"
+    },
+    {
+      "timestamp": "2026-05-01T08:17:33.962Z",
+      "feature": "dashboard",
+      "phase": "do",
+      "action": "updated"
+    },
+    {
+      "timestamp": "2026-05-01T08:17:49.181Z",
+      "feature": "[nodeId]",
+      "phase": "do",
+      "action": "updated"
+    },
+    {
+      "timestamp": "2026-05-01T08:18:49.156Z",
+      "feature": "BarroUs",
+      "phase": "do",
+      "action": "updated"
+    },
+    {
+      "timestamp": "2026-05-01T08:19:00.717Z",
+      "feature": "BarroUs",
+      "phase": "do",
+      "action": "updated"
+    },
+    {
+      "timestamp": "2026-05-01T08:19:08.491Z",
+      "feature": "dashboard",
+      "phase": "do",
+      "action": "updated"
+    },
+    {
+      "timestamp": "2026-05-01T08:19:15.843Z",
+      "feature": "dashboard",
+      "phase": "do",
+      "action": "updated"
+    },
+    {
+      "timestamp": "2026-05-01T08:19:21.953Z",
+      "feature": "login",
+      "phase": "do",
+      "action": "updated"
+    },
+    {
+      "timestamp": "2026-05-01T08:19:29.088Z",
+      "feature": "login",
+      "phase": "do",
+      "action": "updated"
+    },
+    {
+      "timestamp": "2026-05-01T08:19:51.293Z",
+      "feature": "BarroUs",
+      "phase": "do",
+      "action": "updated"
+    },
+    {
+      "timestamp": "2026-05-01T08:19:58.017Z",
+      "feature": "BarroUs",
       "phase": "do",
       "action": "updated"
     }
