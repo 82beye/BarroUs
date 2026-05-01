@@ -1,7 +1,7 @@
 import "server-only";
-import { and, desc, eq } from "drizzle-orm";
+import { and, desc, eq, sql } from "drizzle-orm";
 import { db } from "@/db/client";
-import { nodes } from "@/db/schema";
+import { edges, nodes } from "@/db/schema";
 
 export type ImportedPlaylist = {
   nodeId: string;
@@ -9,6 +9,7 @@ export type ImportedPlaylist = {
   imageUrl: string | null;
   spotifyId: string | null;
   isLikedSongs: boolean;
+  trackCount: number;
   createdAt: Date;
 };
 
@@ -22,6 +23,11 @@ export async function listImportedPlaylists(userId: string): Promise<ImportedPla
       title: nodes.title,
       metadata: nodes.metadata,
       createdAt: nodes.createdAt,
+      trackCount: sql<number>`(
+        SELECT COUNT(*)::int
+        FROM ${edges}
+        WHERE ${edges.fromNode} = ${nodes.id} AND ${edges.kind} = 'contains'
+      )`,
     })
     .from(nodes)
     .where(and(eq(nodes.type, "playlist"), eq(nodes.createdBy, userId)))
@@ -40,6 +46,7 @@ export async function listImportedPlaylists(userId: string): Promise<ImportedPla
       imageUrl: meta.image_url ?? null,
       spotifyId: meta.spotify_id ?? null,
       isLikedSongs: Boolean(meta.is_liked_songs),
+      trackCount: Number(r.trackCount ?? 0),
       createdAt: r.createdAt,
     };
   });

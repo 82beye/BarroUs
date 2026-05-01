@@ -1,13 +1,13 @@
 "use server";
 
-import { and, eq, sql } from "drizzle-orm";
+import { and, eq, inArray, sql } from "drizzle-orm";
 import { revalidatePath } from "next/cache";
 import { headers } from "next/headers";
 import { redirect } from "next/navigation";
 import { db } from "@/db/client";
 import { edges, nodes } from "@/db/schema";
 import { auth } from "@/lib/auth";
-import { SpotifyAuthExpiredError, spotifyFetch } from "@/lib/spotify/client";
+import { SpotifyApiError, SpotifyAuthExpiredError, spotifyFetch } from "@/lib/spotify/client";
 import { getPlaylistTracks } from "@/lib/spotify/playlists";
 import { ensurePersonNode } from "@/server/auth/ensure-person-node";
 import { getValidSpotifyToken } from "@/server/spotify/get-access-token";
@@ -55,6 +55,16 @@ export async function importPlaylist(formData: FormData): Promise<ImportResult> 
     ]);
   } catch (err) {
     if (err instanceof SpotifyAuthExpiredError) redirect("/login?reason=expired");
+    if (err instanceof SpotifyApiError && err.status === 403) {
+      console.error("Spotify 403 on playlist import", { playlistId, body: err.body });
+      return {
+        ok: false,
+        error: "이 플리는 임포트할 수 없어요 (비공개 또는 권한 부족).",
+      };
+    }
+    if (err instanceof SpotifyApiError && err.status === 404) {
+      return { ok: false, error: "플리를 찾을 수 없어요." };
+    }
     console.error("Spotify fetch failed", err);
     return { ok: false, error: "Spotify에서 플리를 가져오지 못했어요." };
   }
@@ -87,7 +97,7 @@ export async function importPlaylist(formData: FormData): Promise<ImportResult> 
     if (!playlistRow) throw new Error("playlist node insert failed");
 
     // 3-2) track nodes — SELECT 기존 + INSERT 미존재
-    const spotifyIds = trackItems.map((t) => t.id).filter((v): v is string => Boolean(v));
+    const spotifyIds = trackItems.map((t) => t.id ?? null).filter((v): v is string => Boolean(v));
     const trackNodeIds: string[] = [];
 
     if (spotifyIds.length > 0) {
@@ -101,7 +111,7 @@ export async function importPlaylist(formData: FormData): Promise<ImportResult> 
         .where(
           and(
             eq(nodes.type, "track"),
-            sql`(${nodes.metadata}->>'spotify_id') = ANY(${spotifyIds})`,
+            inArray(sql<string>`(${nodes.metadata}->>'spotify_id')`, spotifyIds),
           ),
         );
 
@@ -121,10 +131,10 @@ export async function importPlaylist(formData: FormData): Promise<ImportResult> 
               title: t.name,
               metadata: {
                 spotify_id: t.id,
-                preview_url: t.preview_url,
-                duration_ms: t.duration_ms,
-                artists: t.artists.map((a) => ({ id: a.id, name: a.name })),
-                album_image_url: t.album.images?.[0]?.url ?? null,
+                preview_url: t.preview_url ?? null,
+                duration_ms: t.duration_ms ?? 0,
+                artists: (t.artists ?? []).map((a) => ({ id: a.id, name: a.name })),
+                album_image_url: t.album?.images?.[0]?.url ?? null,
                 spotify_url: t.external_urls?.spotify ?? null,
               },
               createdBy: session.user.id,

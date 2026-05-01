@@ -1,6 +1,6 @@
 {
   "version": "2.0",
-  "lastUpdated": "2026-05-01T05:59:33.894Z",
+  "lastUpdated": "2026-05-01T07:31:33.760Z",
   "activeFeatures": [
     "BarroUs",
     "schema",
@@ -12,7 +12,8 @@
     "spotify",
     "actions",
     "queries",
-    "[shareId]"
+    "[shareId]",
+    "[nodeId]"
   ],
   "primaryFeature": "BarroUs",
   "features": {
@@ -25,9 +26,9 @@
       "documents": {},
       "timestamps": {
         "started": "2026-05-01T03:19:18.364Z",
-        "lastUpdated": "2026-05-01T05:58:04.792Z"
+        "lastUpdated": "2026-05-01T07:27:10.811Z"
       },
-      "lastFile": "/Users/beye/workspace/BarroUs/src/lib/auth.ts"
+      "lastFile": "/Users/beye/workspace/BarroUs/src/components/playlist-tracks-view.tsx"
     },
     "schema": {
       "phase": "do",
@@ -103,7 +104,7 @@
       "documents": {},
       "timestamps": {
         "started": "2026-05-01T03:42:10.879Z",
-        "lastUpdated": "2026-05-01T05:59:33.894Z"
+        "lastUpdated": "2026-05-01T07:28:06.341Z"
       },
       "lastFile": "/Users/beye/workspace/BarroUs/src/app/dashboard/page.tsx"
     },
@@ -116,7 +117,7 @@
       "documents": {},
       "timestamps": {
         "started": "2026-05-01T04:35:17.034Z",
-        "lastUpdated": "2026-05-01T05:58:14.647Z"
+        "lastUpdated": "2026-05-01T07:31:33.760Z"
       },
       "lastFile": "/Users/beye/workspace/BarroUs/src/lib/spotify/playlists.ts"
     },
@@ -129,7 +130,7 @@
       "documents": {},
       "timestamps": {
         "started": "2026-05-01T04:36:12.300Z",
-        "lastUpdated": "2026-05-01T05:58:49.710Z"
+        "lastUpdated": "2026-05-01T06:59:33.213Z"
       },
       "lastFile": "/Users/beye/workspace/BarroUs/src/server/actions/import-liked-songs.ts"
     },
@@ -142,9 +143,9 @@
       "documents": {},
       "timestamps": {
         "started": "2026-05-01T04:37:08.803Z",
-        "lastUpdated": "2026-05-01T05:59:25.049Z"
+        "lastUpdated": "2026-05-01T07:26:50.190Z"
       },
-      "lastFile": "/Users/beye/workspace/BarroUs/src/server/queries/list-imported-playlists.ts"
+      "lastFile": "/Users/beye/workspace/BarroUs/src/server/queries/get-playlist-detail.ts"
     },
     "[shareId]": {
       "phase": "do",
@@ -155,9 +156,22 @@
       "documents": {},
       "timestamps": {
         "started": "2026-05-01T04:45:22.835Z",
-        "lastUpdated": "2026-05-01T04:45:22.835Z"
+        "lastUpdated": "2026-05-01T07:27:20.884Z"
       },
       "lastFile": "/Users/beye/workspace/BarroUs/src/app/p/[shareId]/page.tsx"
+    },
+    "[nodeId]": {
+      "phase": "do",
+      "phaseNumber": 3,
+      "matchRate": null,
+      "iterationCount": 0,
+      "requirements": [],
+      "documents": {},
+      "timestamps": {
+        "started": "2026-05-01T07:27:36.572Z",
+        "lastUpdated": "2026-05-01T07:27:36.572Z"
+      },
+      "lastFile": "/Users/beye/workspace/BarroUs/src/app/dashboard/playlist/[nodeId]/page.tsx"
     }
   },
   "pipeline": {
@@ -168,7 +182,7 @@
   "session": {
     "startedAt": "2026-05-01T02:58:56.206Z",
     "onboardingCompleted": false,
-    "lastActivity": "2026-05-01T05:59:33.894Z"
+    "lastActivity": "2026-05-01T07:31:33.760Z"
   },
   "history": [
     {
@@ -462,6 +476,150 @@
     {
       "timestamp": "2026-05-01T05:59:33.894Z",
       "feature": "dashboard",
+      "phase": "do",
+      "action": "updated"
+    },
+    {
+      "timestamp": "2026-05-01T06:55:43.596Z",
+      "feature": "spotify",
+      "phase": "do",
+      "action": "updated"
+    },
+    {
+      "timestamp": "2026-05-01T06:56:01.767Z",
+      "feature": "spotify",
+      "phase": "do",
+      "action": "updated"
+    },
+    {
+      "timestamp": "2026-05-01T06:56:08.150Z",
+      "feature": "actions",
+      "phase": "do",
+      "action": "updated"
+    },
+    {
+      "timestamp": "2026-05-01T06:56:18.010Z",
+      "feature": "actions",
+      "phase": "do",
+      "action": "updated"
+    },
+    {
+      "timestamp": "2026-05-01T06:56:23.197Z",
+      "feature": "actions",
+      "phase": "do",
+      "action": "updated"
+    },
+    {
+      "timestamp": "2026-05-01T06:56:31.539Z",
+      "feature": "actions",
+      "phase": "do",
+      "action": "updated"
+    },
+    {
+      "timestamp": "2026-05-01T06:56:38.211Z",
+      "feature": "actions",
+      "phase": "do",
+      "action": "updated"
+    },
+    {
+      "timestamp": "2026-05-01T06:56:47.044Z",
+      "feature": "actions",
+      "phase": "do",
+      "action": "updated"
+    },
+    {
+      "timestamp": "2026-05-01T06:59:11.810Z",
+      "feature": "actions",
+      "phase": "do",
+      "action": "updated"
+    },
+    {
+      "timestamp": "2026-05-01T06:59:19.510Z",
+      "feature": "actions",
+      "phase": "do",
+      "action": "updated"
+    },
+    {
+      "timestamp": "2026-05-01T06:59:24.971Z",
+      "feature": "actions",
+      "phase": "do",
+      "action": "updated"
+    },
+    {
+      "timestamp": "2026-05-01T06:59:33.213Z",
+      "feature": "actions",
+      "phase": "do",
+      "action": "updated"
+    },
+    {
+      "timestamp": "2026-05-01T07:22:35.539Z",
+      "feature": "queries",
+      "phase": "do",
+      "action": "updated"
+    },
+    {
+      "timestamp": "2026-05-01T07:22:50.472Z",
+      "feature": "queries",
+      "phase": "do",
+      "action": "updated"
+    },
+    {
+      "timestamp": "2026-05-01T07:22:59.697Z",
+      "feature": "dashboard",
+      "phase": "do",
+      "action": "updated"
+    },
+    {
+      "timestamp": "2026-05-01T07:23:17.928Z",
+      "feature": "dashboard",
+      "phase": "do",
+      "action": "updated"
+    },
+    {
+      "timestamp": "2026-05-01T07:23:24.365Z",
+      "feature": "dashboard",
+      "phase": "do",
+      "action": "updated"
+    },
+    {
+      "timestamp": "2026-05-01T07:26:50.190Z",
+      "feature": "queries",
+      "phase": "do",
+      "action": "updated"
+    },
+    {
+      "timestamp": "2026-05-01T07:27:10.811Z",
+      "feature": "BarroUs",
+      "phase": "do",
+      "action": "updated"
+    },
+    {
+      "timestamp": "2026-05-01T07:27:20.884Z",
+      "feature": "[shareId]",
+      "phase": "do",
+      "action": "updated"
+    },
+    {
+      "timestamp": "2026-05-01T07:27:36.572Z",
+      "feature": "[nodeId]",
+      "phase": "do",
+      "action": "updated"
+    },
+    {
+      "timestamp": "2026-05-01T07:27:53.379Z",
+      "feature": "dashboard",
+      "phase": "do",
+      "action": "updated"
+    },
+    {
+      "timestamp": "2026-05-01T07:28:06.341Z",
+      "feature": "dashboard",
+      "phase": "do",
+      "action": "updated"
+    },
+    {
+      "timestamp": "2026-05-01T07:31:33.760Z",
+      "feature": "spotify",
       "phase": "do",
       "action": "updated"
     }

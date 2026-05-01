@@ -1,5 +1,6 @@
 import { headers } from "next/headers";
 import Image from "next/image";
+import Link from "next/link";
 import { redirect } from "next/navigation";
 import { auth } from "@/lib/auth";
 import { SpotifyAuthExpiredError } from "@/lib/spotify/client";
@@ -88,7 +89,7 @@ export default async function DashboardPage() {
                       {p.tracks?.total ?? 0}곡 · {p.owner.display_name ?? p.owner.id}
                     </p>
                   </div>
-                  <ImportButton playlistId={p.id} />
+                  <ImportButton playlistId={p.id} trackTotal={p.tracks?.total ?? 0} />
                 </li>
               );
             })}
@@ -105,35 +106,45 @@ export default async function DashboardPage() {
             {imported.map((p) => (
               <li
                 key={p.nodeId}
-                className="flex items-center gap-3 rounded-lg border border-neutral-800 bg-neutral-950 p-3"
+                className="flex items-center gap-3 rounded-lg border border-neutral-800 bg-neutral-950 p-3 transition hover:border-neutral-700"
               >
-                {p.imageUrl ? (
-                  <Image
-                    src={p.imageUrl}
-                    alt=""
-                    width={48}
-                    height={48}
-                    className="rounded-md"
-                    unoptimized
-                  />
-                ) : (
-                  <div
-                    className={`flex size-12 items-center justify-center rounded-md text-lg ${
-                      p.isLikedSongs ? "bg-pink-900/40 text-pink-300" : "bg-neutral-800"
-                    }`}
-                  >
-                    {p.isLikedSongs ? "♥" : ""}
+                <Link
+                  href={`/dashboard/playlist/${p.nodeId}`}
+                  className="flex flex-1 items-center gap-3 min-w-0"
+                >
+                  {p.imageUrl ? (
+                    <Image
+                      src={p.imageUrl}
+                      alt=""
+                      width={48}
+                      height={48}
+                      className="rounded-md"
+                      unoptimized
+                    />
+                  ) : (
+                    <div
+                      className={`flex size-12 items-center justify-center rounded-md text-lg ${
+                        p.isLikedSongs ? "bg-pink-900/40 text-pink-300" : "bg-neutral-800"
+                      }`}
+                    >
+                      {p.isLikedSongs ? "♥" : "♪"}
+                    </div>
+                  )}
+                  <div className="min-w-0 flex-1">
+                    <p className="truncate font-medium">
+                      {p.title}
+                      {p.isLikedSongs ? (
+                        <span className="ml-2 text-xs text-pink-300">좋아요 곡</span>
+                      ) : null}
+                    </p>
+                    <p className="text-xs text-neutral-500">
+                      {p.trackCount}곡
+                      <span className="ml-2 font-mono text-neutral-700">
+                        {p.nodeId.slice(0, 8)}
+                      </span>
+                    </p>
                   </div>
-                )}
-                <div className="min-w-0 flex-1">
-                  <p className="truncate font-medium">
-                    {p.title}
-                    {p.isLikedSongs ? (
-                      <span className="ml-2 text-xs text-pink-300">좋아요 곡</span>
-                    ) : null}
-                  </p>
-                  <p className="font-mono text-xs text-neutral-500">{p.nodeId}</p>
-                </div>
+                </Link>
                 <ShareButton nodeId={p.nodeId} />
               </li>
             ))}

@@ -3,9 +3,13 @@
 import { useState, useTransition } from "react";
 import { importPlaylist } from "@/server/actions/import-playlist";
 
-export default function ImportButton({ playlistId }: { playlistId: string }) {
+type Props = { playlistId: string; trackTotal: number };
+
+export default function ImportButton({ playlistId, trackTotal }: Props) {
   const [pending, startTransition] = useTransition();
   const [error, setError] = useState<string | null>(null);
+
+  const isEmpty = trackTotal === 0;
 
   const handleClick = () => {
     setError(null);
@@ -22,10 +26,11 @@ export default function ImportButton({ playlistId }: { playlistId: string }) {
       <button
         type="button"
         onClick={handleClick}
-        disabled={pending}
+        disabled={pending || isEmpty}
+        title={isEmpty ? "빈 플리는 임포트할 수 없어요" : undefined}
         className="rounded-md bg-[#1db954] px-3 py-1.5 text-sm font-semibold text-black transition hover:bg-[#1ed760] disabled:cursor-not-allowed disabled:opacity-60"
       >
-        {pending ? "임포트 중..." : "Import"}
+        {pending ? "임포트 중..." : isEmpty ? "빈 플리" : "Import"}
       </button>
       {error ? <p className="text-xs text-red-400">{error}</p> : null}
     </div>

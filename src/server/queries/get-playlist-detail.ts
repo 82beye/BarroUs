@@ -3,7 +3,7 @@ import { aliasedTable, and, asc, eq } from "drizzle-orm";
 import { db } from "@/db/client";
 import { edges, nodes, shares } from "@/db/schema";
 
-export type SharePlaylistTrack = {
+export type PlaylistTrack = {
   nodeId: string;
   title: string;
   artists: string[];
@@ -13,47 +13,46 @@ export type SharePlaylistTrack = {
   albumImageUrl: string | null;
 };
 
-export type SharePlaylist = {
-  shareId: string;
+export type PlaylistDetail = {
   playlist: {
     nodeId: string;
     title: string;
     description: string | null;
     imageUrl: string | null;
     ownerDisplayName: string | null;
+    isLikedSongs: boolean;
+    createdBy: string | null;
   };
-  tracks: SharePlaylistTrack[];
+  tracks: PlaylistTrack[];
 };
 
 /**
- * shareId로 공개 페이지 데이터를 한 번에 가져온다.
- * 미존재 또는 타입 불일치(현재 playlist만 지원) → null.
+ * playlist node 1개를 detail (트랙 리스트 포함) 형태로 조회.
+ * 공유 페이지 / 대시보드 상세 페이지가 공통으로 사용.
  */
-export async function getShareWithTracks(shareId: string): Promise<SharePlaylist | null> {
-  // 1) share + playlist node
+export async function getPlaylistDetail(nodeId: string): Promise<PlaylistDetail | null> {
   const head = await db
     .select({
-      shareId: shares.shareId,
       nodeId: nodes.id,
       type: nodes.type,
       title: nodes.title,
       metadata: nodes.metadata,
+      createdBy: nodes.createdBy,
     })
-    .from(shares)
-    .innerJoin(nodes, eq(nodes.id, shares.nodeId))
-    .where(eq(shares.shareId, shareId))
+    .from(nodes)
+    .where(eq(nodes.id, nodeId))
     .limit(1);
 
   const row = head[0];
   if (!row || row.type !== "playlist") return null;
 
-  const playlistMeta = row.metadata as {
+  const meta = row.metadata as {
     description?: string | null;
     image_url?: string | null;
     owner_display_name?: string | null;
+    is_liked_songs?: boolean;
   };
 
-  // 2) contains 엣지로 트랙 nodes 조회
   const trackNodes = aliasedTable(nodes, "track_nodes");
   const trackRows = await db
     .select({
@@ -67,8 +66,8 @@ export async function getShareWithTracks(shareId: string): Promise<SharePlaylist
     .where(and(eq(edges.fromNode, row.nodeId), eq(edges.kind, "contains")))
     .orderBy(asc(edges.createdAt));
 
-  const tracks: SharePlaylistTrack[] = trackRows.map((t) => {
-    const meta = t.metadata as {
+  const tracks: PlaylistTrack[] = trackRows.map((t) => {
+    const tm = t.metadata as {
       preview_url?: string | null;
       duration_ms?: number;
       artists?: { name: string }[];
@@ -78,23 +77,37 @@ export async function getShareWithTracks(shareId: string): Promise<SharePlaylist
     return {
       nodeId: t.nodeId,
       title: t.title,
-      artists: meta.artists?.map((a) => a.name) ?? [],
-      durationMs: meta.duration_ms ?? 0,
-      previewUrl: meta.preview_url ?? null,
-      spotifyUrl: meta.spotify_url ?? null,
-      albumImageUrl: meta.album_image_url ?? null,
+      artists: tm.artists?.map((a) => a.name) ?? [],
+      durationMs: tm.duration_ms ?? 0,
+      previewUrl: tm.preview_url ?? null,
+      spotifyUrl: tm.spotify_url ?? null,
+      albumImageUrl: tm.album_image_url ?? null,
     };
   });
 
   return {
-    shareId: row.shareId,
     playlist: {
       nodeId: row.nodeId,
       title: row.title,
-      description: playlistMeta.description ?? null,
-      imageUrl: playlistMeta.image_url ?? null,
-      ownerDisplayName: playlistMeta.owner_display_name ?? null,
+      description: meta.description ?? null,
+      imageUrl: meta.image_url ?? null,
+      ownerDisplayName: meta.owner_display_name ?? null,
+      isLikedSongs: Boolean(meta.is_liked_songs),
+      createdBy: row.createdBy ?? null,
     },
     tracks,
   };
+}
+
+/**
+ * shareId → playlist node id 변환.
+ * 공개 페이지 진입점에서 사용.
+ */
+export async function resolveShareNodeId(shareId: string): Promise<string | null> {
+  const rows = await db
+    .select({ nodeId: shares.nodeId })
+    .from(shares)
+    .where(eq(shares.shareId, shareId))
+    .limit(1);
+  return rows[0]?.nodeId ?? null;
 }

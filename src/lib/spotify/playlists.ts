@@ -35,12 +35,13 @@ const SpotifyAlbum = z
 
 const SpotifyTrack = z
   .object({
-    id: z.string().nullable(), // local 트랙은 null
+    // local 트랙은 id null. 그 외 일부 필드는 응답에서 누락될 수 있음 → nullish.
+    id: z.string().nullish(),
     name: z.string(),
-    artists: z.array(SpotifyArtist),
-    album: SpotifyAlbum,
-    duration_ms: z.number().int().nonnegative(),
-    preview_url: z.string().nullable(),
+    artists: z.array(SpotifyArtist).nullish(),
+    album: SpotifyAlbum.nullish(),
+    duration_ms: z.number().int().nonnegative().nullish(),
+    preview_url: z.string().nullish(),
     external_urls: z.object({ spotify: z.string() }).nullish(),
     is_local: z.boolean().optional(),
   })
@@ -74,12 +75,27 @@ export async function listMyPlaylists(accessToken: string): Promise<SpotifyPlayl
   const HARD_CAP = 200;
   const out: SpotifyPlaylistSummary[] = [];
   let url: string | null = `/me/playlists?limit=${PAGE_LIMIT}`;
+  let dumped = false;
 
   while (url && out.length < HARD_CAP) {
     const raw = await spotifyFetch<unknown>(accessToken, url);
-    const page = SpotifyPaging(SpotifyPlaylistSummarySchema).parse(raw);
-    out.push(...page.items);
-    url = page.next;
+
+    // 진단: 첫 페이지 첫 아이템 raw dump (트랙 수 표시 이슈 추적용)
+    if (!dumped && typeof raw === "object" && raw !== null && "items" in raw) {
+      const items = (raw as { items?: unknown[] }).items;
+      if (items && items.length > 0) {
+        console.log("[Spotify /me/playlists] sample raw item:", JSON.stringify(items[0]));
+      }
+      dumped = true;
+    }
+
+    const parsed = SpotifyPaging(SpotifyPlaylistSummarySchema).safeParse(raw);
+    if (!parsed.success) {
+      console.error("[Spotify /me/playlists] parse failed", parsed.error.issues.slice(0, 3));
+      break;
+    }
+    out.push(...parsed.data.items);
+    url = parsed.data.next;
   }
   return out.slice(0, HARD_CAP);
 }
@@ -95,14 +111,18 @@ export async function getLikedTracks(accessToken: string): Promise<SpotifyTrackI
 
   while (url) {
     const raw = await spotifyFetch<unknown>(accessToken, url);
-    const page = SpotifyPaging(SpotifyPlaylistTrackItem).parse(raw);
-    for (const item of page.items) {
+    const parsed = SpotifyPaging(SpotifyPlaylistTrackItem).safeParse(raw);
+    if (!parsed.success) {
+      console.error("[Spotify] /me/tracks parse failed", parsed.error.issues.slice(0, 3));
+      break;
+    }
+    for (const item of parsed.data.items) {
       if (!item.track) continue;
       if (item.track.is_local) continue;
       if (!item.track.id) continue;
       out.push(item.track);
     }
-    url = page.next;
+    url = parsed.data.next;
   }
   return out;
 }
@@ -121,14 +141,18 @@ export async function getPlaylistTracks(
 
   while (url) {
     const raw = await spotifyFetch<unknown>(accessToken, url);
-    const page = SpotifyPaging(SpotifyPlaylistTrackItem).parse(raw);
-    for (const item of page.items) {
+    const parsed = SpotifyPaging(SpotifyPlaylistTrackItem).safeParse(raw);
+    if (!parsed.success) {
+      console.error("[Spotify] /playlists tracks parse failed", parsed.error.issues.slice(0, 3));
+      break;
+    }
+    for (const item of parsed.data.items) {
       if (!item.track) continue;
       if (item.track.is_local) continue;
-      if (!item.track.id) continue; // local/unavailable 안전망
+      if (!item.track.id) continue;
       out.push(item.track);
     }
-    url = page.next;
+    url = parsed.data.next;
   }
   return out;
 }

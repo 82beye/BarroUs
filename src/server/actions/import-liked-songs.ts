@@ -1,6 +1,6 @@
 "use server";
 
-import { and, eq, sql } from "drizzle-orm";
+import { and, eq, inArray, sql } from "drizzle-orm";
 import { revalidatePath } from "next/cache";
 import { headers } from "next/headers";
 import { redirect } from "next/navigation";
@@ -81,7 +81,7 @@ export async function importLikedSongs(): Promise<ImportResult> {
     }
 
     // 2) 트랙 dedupe: SELECT 기존 + INSERT 미존재
-    const spotifyIds = trackItems.map((t) => t.id).filter((v): v is string => Boolean(v));
+    const spotifyIds = trackItems.map((t) => t.id ?? null).filter((v): v is string => Boolean(v));
     const trackNodeIds: string[] = [];
 
     if (spotifyIds.length > 0) {
@@ -94,7 +94,7 @@ export async function importLikedSongs(): Promise<ImportResult> {
         .where(
           and(
             eq(nodes.type, "track"),
-            sql`(${nodes.metadata}->>'spotify_id') = ANY(${spotifyIds})`,
+            inArray(sql<string>`(${nodes.metadata}->>'spotify_id')`, spotifyIds),
           ),
         );
 
@@ -111,10 +111,10 @@ export async function importLikedSongs(): Promise<ImportResult> {
               title: t.name,
               metadata: {
                 spotify_id: t.id,
-                preview_url: t.preview_url,
-                duration_ms: t.duration_ms,
-                artists: t.artists.map((a) => ({ id: a.id, name: a.name })),
-                album_image_url: t.album.images?.[0]?.url ?? null,
+                preview_url: t.preview_url ?? null,
+                duration_ms: t.duration_ms ?? 0,
+                artists: (t.artists ?? []).map((a) => ({ id: a.id, name: a.name })),
+                album_image_url: t.album?.images?.[0]?.url ?? null,
                 spotify_url: t.external_urls?.spotify ?? null,
               },
               createdBy: session.user.id,
