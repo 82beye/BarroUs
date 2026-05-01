@@ -60,3 +60,7 @@ Thumbs.db
 # bkit / Claude
 .claude/local/
 .bkit-local/
+.bkit/
+
+# Claude
+claude.md
