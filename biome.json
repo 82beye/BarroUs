@@ -18,7 +18,8 @@
       "!**/.next",
       "!**/drizzle",
       "!**/.bkit",
-      "!docs"
+      "!docs",
+      "!.design-handoff"
     ]
   },
   "formatter": {

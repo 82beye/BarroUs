@@ -19,7 +19,7 @@ export default function ShareButton({ nodeId }: { nodeId: string }) {
       }
       try {
         await navigator.clipboard.writeText(r.url);
-        setToast("복사됨: " + r.url);
+        setToast(`복사됨: ${r.url}`);
       } catch {
         setToast(r.url);
       }
