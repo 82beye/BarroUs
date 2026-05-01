@@ -18,21 +18,30 @@ export default async function DashboardPlaylistPage({ params }: { params: Params
 
   const detail = await getPlaylistDetail(nodeId);
   if (!detail) notFound();
-
-  // 본인 소유만 dashboard에서 노출 (남의 플리는 share URL로만 접근)
   if (detail.playlist.createdBy !== session.user.id) notFound();
 
   return (
-    <main className="mx-auto flex min-h-screen max-w-3xl flex-col gap-6 p-6 md:p-8">
-      <Link
-        href="/dashboard"
-        className="text-sm text-neutral-500 transition hover:text-neutral-300"
-      >
-        ← 대시보드로
-      </Link>
+    <main className="mx-auto flex min-h-screen max-w-[1200px] flex-col px-5 pb-20 md:px-10">
+      {/* MASTHEAD */}
+      <div className="grid grid-cols-[1fr_auto_1fr] items-end gap-6 border-b border-line pt-6 pb-3.5 md:pt-8">
+        <div className="flex gap-4 text-[11px] uppercase tracking-[0.12em]">
+          <Link href="/dashboard" className="text-ink hover:text-accent">
+            ← 대시보드
+          </Link>
+        </div>
+        <div className="font-serif text-3xl italic leading-none tracking-[-0.02em] md:text-4xl md:text-center">
+          <em>Barro</em>
+          <b className="not-italic font-sans font-semibold tracking-[-0.04em]">Us</b>
+        </div>
+        <div className="hidden justify-end text-[11px] uppercase tracking-[0.12em] text-muted md:flex">
+          PRIVATE · OWNER
+        </div>
+      </div>
+
       <PlaylistTracksView
         detail={detail}
         actions={<ShareButton nodeId={detail.playlist.nodeId} />}
+        showMastMeta={false}
       />
     </main>
   );

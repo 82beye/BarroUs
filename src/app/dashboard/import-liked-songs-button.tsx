@@ -16,16 +16,17 @@ export default function ImportLikedSongsButton() {
   };
 
   return (
-    <div className="flex flex-col gap-1">
+    <div className="flex flex-col items-end gap-1">
       <button
         type="button"
         onClick={handleClick}
         disabled={pending}
-        className="rounded-md border border-pink-700 bg-pink-950/40 px-3 py-1.5 text-sm text-pink-200 transition hover:bg-pink-900/40 disabled:opacity-60"
+        className="flex items-center gap-2 border border-line bg-ink px-4 py-2.5 text-[12px] uppercase tracking-[0.12em] text-bg transition-opacity hover:opacity-90 disabled:cursor-not-allowed disabled:opacity-60"
       >
-        {pending ? "임포트 중..." : "♥ 좋아요 곡 임포트"}
+        <span className="text-accent">♥</span>
+        <span>{pending ? "임포트 중..." : "좋아요 곡 임포트"}</span>
       </button>
-      {error ? <p className="text-xs text-red-400">{error}</p> : null}
+      {error ? <p className="text-xs text-accent">{error}</p> : null}
     </div>
   );
 }

@@ -23,16 +23,17 @@ export default function LoginButton() {
   };
 
   return (
-    <div className="flex flex-col items-center gap-3">
+    <div className="flex flex-col gap-2">
       <button
         type="button"
         onClick={handleClick}
         disabled={pending}
-        className="rounded-full bg-[#1db954] px-6 py-3 font-semibold text-black transition hover:bg-[#1ed760] disabled:cursor-not-allowed disabled:opacity-60"
+        className="mt-2 flex items-center justify-between bg-ink px-5 py-4 font-sans text-[15px] font-semibold text-bg transition-opacity hover:opacity-90 disabled:cursor-not-allowed disabled:opacity-60"
       >
-        {pending ? "이동 중..." : "Continue with Spotify"}
+        <span>{pending ? "이동 중..." : "Spotify로 로그인"}</span>
+        <span className="text-accent">→</span>
       </button>
-      {error ? <p className="text-sm text-red-400">{error}</p> : null}
+      {error ? <p className="text-sm text-accent">{error}</p> : null}
     </div>
   );
 }

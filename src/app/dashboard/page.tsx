@@ -17,10 +17,8 @@ export default async function DashboardPage() {
   const session = await auth.api.getSession({ headers: await headers() });
   if (!session) redirect("/login");
 
-  // person node 보장 (그래프 일관성)
   await ensurePersonNode(session.user.id, session.user.name ?? session.user.email);
 
-  // Spotify access token + 플리 목록 조회 (만료 시 재로그인 유도)
   const accessToken = await getValidSpotifyToken(session.user.id);
   if (!accessToken) redirect("/login?reason=expired");
 
@@ -35,122 +33,159 @@ export default async function DashboardPage() {
   }
 
   const imported = await listImportedPlaylists(session.user.id);
+  const userName = session.user.name ?? session.user.email;
+
+  // 매거진 그리드 리듬: 6/3/3, 4/4/4, …
+  const rhythm = [
+    "md:col-span-6",
+    "md:col-span-3",
+    "md:col-span-3",
+    "md:col-span-4",
+    "md:col-span-4",
+    "md:col-span-4",
+  ] as const;
 
   return (
-    <main className="mx-auto flex min-h-screen max-w-3xl flex-col gap-8 p-8">
-      <header className="flex items-center justify-between">
-        <h1 className="text-2xl font-bold tracking-tight">대시보드</h1>
-        <div className="flex items-center gap-3 text-sm text-neutral-400">
-          <span>{session.user.name ?? session.user.email}</span>
+    <main className="mx-auto flex min-h-screen max-w-[1280px] flex-col px-5 pb-16 md:px-10">
+      {/* MASTHEAD */}
+      <div className="grid grid-cols-[1fr_auto_1fr] items-end gap-6 border-b border-line pt-6 pb-3.5 md:pt-8">
+        <div className="flex gap-4 text-[11px] uppercase tracking-[0.12em]">
+          <span className="text-ink">대시보드</span>
+          <span className="text-muted">임포트</span>
+          <span className="text-muted">공유</span>
+        </div>
+        <div className="font-serif text-3xl italic leading-none tracking-[-0.02em] md:text-4xl md:text-center">
+          <em>Barro</em>
+          <b className="not-italic font-sans font-semibold tracking-[-0.04em]">Us</b>
+        </div>
+        <div className="flex justify-end items-baseline gap-3.5 text-[11px] uppercase tracking-[0.12em]">
+          <span className="text-muted">{userName}</span>
           <LogoutButton />
         </div>
-      </header>
+      </div>
 
-      <section>
-        <div className="mb-3 flex items-center justify-between">
-          <h2 className="text-sm font-semibold text-neutral-400">좋아요 곡</h2>
+      {/* META BAR */}
+      <div className="flex flex-wrap items-center justify-between gap-3 border-b border-line py-2.5 text-[11px] uppercase tracking-[0.12em]">
+        <div>
+          WORKSPACE <span className="text-accent">●</span> @{userName}
+        </div>
+        <div className="font-mono text-muted">
+          {imported.length} IMPORTED · {spotifyPlaylists.length} ON SPOTIFY
+        </div>
+      </div>
+
+      {/* SMALL HERO */}
+      <section className="flex flex-wrap items-end justify-between gap-6 border-b border-line py-10 md:py-14">
+        <h1 className="display-type text-[clamp(36px,5.5vw,80px)]">
+          <em>{userName}</em>님의 <span className="text-accent">서가</span>.
+        </h1>
+        <div className="flex gap-2.5">
           <ImportLikedSongsButton />
         </div>
-        <p className="text-xs text-neutral-500">
-          Spotify에서 ♥ 누른 곡을 한 묶음으로 가져와요. 다시 임포트하면 새 곡이 추가됩니다.
+      </section>
+
+      {/* SECTION i — Spotify source list */}
+      <div className="grid grid-cols-[auto_1fr_auto] items-end gap-6 pb-4 pt-10">
+        <div className="font-serif text-4xl font-light italic leading-none">i.</div>
+        <h2 className="display-type text-2xl">내 Spotify 플리</h2>
+        <div className="text-[11px] uppercase tracking-[0.14em] text-muted">SOURCE</div>
+      </div>
+
+      {spotifyError ? (
+        <p className="border border-accent/40 bg-accent/10 px-3 py-2 text-sm text-accent">
+          {spotifyError}
         </p>
-      </section>
-
-      <section>
-        <h2 className="mb-3 text-sm font-semibold text-neutral-400">내 Spotify 플리</h2>
-        {spotifyError ? (
-          <p className="rounded-md bg-red-950/40 px-3 py-2 text-sm text-red-300">{spotifyError}</p>
-        ) : spotifyPlaylists.length === 0 ? (
-          <p className="text-sm text-neutral-500">플리가 없어요.</p>
-        ) : (
-          <ul className="grid gap-2">
-            {spotifyPlaylists.map((p) => {
-              const imageUrl = p.images?.[0]?.url ?? null;
-              return (
-                <li
-                  key={p.id}
-                  className="flex items-center gap-3 rounded-lg border border-neutral-800 bg-neutral-950 p-3"
-                >
-                  {imageUrl ? (
-                    <Image
-                      src={imageUrl}
-                      alt=""
-                      width={48}
-                      height={48}
-                      className="rounded-md"
-                      unoptimized
-                    />
-                  ) : (
-                    <div className="size-12 rounded-md bg-neutral-800" />
-                  )}
-                  <div className="flex-1 min-w-0">
-                    <p className="truncate font-medium">{p.name}</p>
-                    <p className="text-xs text-neutral-500">
-                      {p.tracks?.total ?? 0}곡 · {p.owner.display_name ?? p.owner.id}
-                    </p>
-                  </div>
-                  <ImportButton playlistId={p.id} trackTotal={p.tracks?.total ?? 0} />
-                </li>
-              );
-            })}
-          </ul>
-        )}
-      </section>
-
-      <section>
-        <h2 className="mb-3 text-sm font-semibold text-neutral-400">임포트한 플리</h2>
-        {imported.length === 0 ? (
-          <p className="text-sm text-neutral-500">아직 임포트한 플리가 없어요.</p>
-        ) : (
-          <ul className="grid gap-2">
-            {imported.map((p) => (
+      ) : spotifyPlaylists.length === 0 ? (
+        <p className="border-t border-line py-6 text-sm text-muted">플리가 없어요.</p>
+      ) : (
+        <ul className="border-t border-line">
+          {spotifyPlaylists.map((p) => {
+            const imageUrl = p.images?.[0]?.url ?? null;
+            return (
               <li
-                key={p.nodeId}
-                className="flex items-center gap-3 rounded-lg border border-neutral-800 bg-neutral-950 p-3 transition hover:border-neutral-700"
+                key={p.id}
+                className="grid grid-cols-[40px_1fr_auto] items-center gap-4 border-b border-line-soft py-3.5"
               >
-                <Link
-                  href={`/dashboard/playlist/${p.nodeId}`}
-                  className="flex flex-1 items-center gap-3 min-w-0"
-                >
-                  {p.imageUrl ? (
-                    <Image
-                      src={p.imageUrl}
-                      alt=""
-                      width={48}
-                      height={48}
-                      className="rounded-md"
-                      unoptimized
-                    />
-                  ) : (
+                {imageUrl ? (
+                  <Image src={imageUrl} alt="" width={40} height={40} unoptimized />
+                ) : (
+                  <div className="size-10 bg-card" />
+                )}
+                <div className="min-w-0">
+                  <p className="truncate text-[15px] font-semibold tracking-[-0.01em]">{p.name}</p>
+                  <p className="font-mono text-[11px] text-muted">
+                    {p.tracks?.total ?? 0} TRACKS · {p.owner.display_name ?? p.owner.id}
+                  </p>
+                </div>
+                <ImportButton playlistId={p.id} trackTotal={p.tracks?.total ?? 0} />
+              </li>
+            );
+          })}
+        </ul>
+      )}
+
+      {/* SECTION ii — Imported as MAGAZINE GRID */}
+      <div className="grid grid-cols-[auto_1fr_auto] items-end gap-6 pb-4 pt-14">
+        <div className="font-serif text-4xl font-light italic leading-none">ii.</div>
+        <h2 className="display-type text-2xl">임포트한 플리</h2>
+        <div className="text-[11px] uppercase tracking-[0.14em] text-muted">
+          {imported.length} ITEMS
+        </div>
+      </div>
+
+      {imported.length === 0 ? (
+        <p className="border-t border-line py-6 text-sm text-muted">아직 임포트한 플리가 없어요.</p>
+      ) : (
+        <ul className="grid grid-cols-2 gap-5 border-t border-line pt-5 md:grid-cols-12">
+          {imported.map((p, i) => {
+            const colSpan = rhythm[i % rhythm.length];
+            const angle = 30 + ((i * 35) % 150);
+            return (
+              <li key={p.nodeId} className={`col-span-1 ${colSpan}`}>
+                <Link href={`/dashboard/playlist/${p.nodeId}`} className="group block">
+                  <div
+                    className="stripe-cover relative aspect-square w-full"
+                    style={{ ["--stripe-angle" as string]: `${angle}deg` }}
+                  >
+                    {p.imageUrl ? (
+                      <Image
+                        src={p.imageUrl}
+                        alt=""
+                        fill
+                        sizes="(max-width: 768px) 50vw, 25vw"
+                        className="object-cover mix-blend-multiply transition-transform duration-500 group-hover:-translate-y-1 dark:mix-blend-screen"
+                        unoptimized
+                      />
+                    ) : null}
                     <div
-                      className={`flex size-12 items-center justify-center rounded-md text-lg ${
-                        p.isLikedSongs ? "bg-pink-900/40 text-pink-300" : "bg-neutral-800"
+                      className={`absolute left-3 top-2.5 font-mono text-[10px] ${
+                        p.isLikedSongs ? "text-accent" : "text-muted"
                       }`}
                     >
-                      {p.isLikedSongs ? "♥" : "♪"}
+                      {p.isLikedSongs ? "♥" : `P—${(i + 1).toString().padStart(2, "0")}`}
                     </div>
-                  )}
-                  <div className="min-w-0 flex-1">
-                    <p className="truncate font-medium">
-                      {p.title}
-                      {p.isLikedSongs ? (
-                        <span className="ml-2 text-xs text-pink-300">좋아요 곡</span>
-                      ) : null}
-                    </p>
-                    <p className="text-xs text-neutral-500">
-                      {p.trackCount}곡
-                      <span className="ml-2 font-mono text-neutral-700">
-                        {p.nodeId.slice(0, 8)}
-                      </span>
-                    </p>
+                    <div className="absolute right-3 top-2.5 font-mono text-[10px] text-muted">
+                      {p.trackCount}
+                    </div>
+                    <div className="display-type absolute inset-x-3.5 bottom-3.5 text-[clamp(20px,2.5vw,40px)] mix-blend-difference">
+                      {p.title.split(" ")[0]}
+                    </div>
                   </div>
                 </Link>
-                <ShareButton nodeId={p.nodeId} />
+                <div className="mt-2 grid grid-cols-[1fr_auto] items-center gap-x-3 gap-y-1 border-t border-line pt-2">
+                  <h4 className="truncate text-sm font-bold tracking-[-0.02em]">
+                    {p.title}
+                    {p.isLikedSongs ? (
+                      <span className="ml-2 font-normal text-accent">좋아요 곡</span>
+                    ) : null}
+                  </h4>
+                  <ShareButton nodeId={p.nodeId} />
+                </div>
               </li>
-            ))}
-          </ul>
-        )}
-      </section>
+            );
+          })}
+        </ul>
+      )}
     </main>
   );
 }

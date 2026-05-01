@@ -19,7 +19,7 @@ export default function LogoutButton() {
       type="button"
       onClick={handleClick}
       disabled={pending}
-      className="rounded-md border border-neutral-700 px-3 py-1.5 text-sm transition hover:bg-neutral-900 disabled:opacity-60"
+      className="text-[11px] uppercase tracking-[0.12em] text-ink transition-colors hover:text-accent disabled:opacity-60"
     >
       {pending ? "로그아웃 중..." : "로그아웃"}
     </button>

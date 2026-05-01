@@ -28,11 +28,11 @@ export default function ImportButton({ playlistId, trackTotal }: Props) {
         onClick={handleClick}
         disabled={pending || isEmpty}
         title={isEmpty ? "빈 플리는 임포트할 수 없어요" : undefined}
-        className="rounded-md bg-[#1db954] px-3 py-1.5 text-sm font-semibold text-black transition hover:bg-[#1ed760] disabled:cursor-not-allowed disabled:opacity-60"
+        className="border border-line px-3 py-1.5 text-[11px] uppercase tracking-[0.12em] transition-colors hover:bg-ink hover:text-bg disabled:cursor-not-allowed disabled:opacity-40"
       >
-        {pending ? "임포트 중..." : isEmpty ? "빈 플리" : "Import"}
+        {pending ? "임포트 중..." : isEmpty ? "빈 플리" : "Import →"}
       </button>
-      {error ? <p className="text-xs text-red-400">{error}</p> : null}
+      {error ? <p className="text-xs text-accent">{error}</p> : null}
     </div>
   );
 }

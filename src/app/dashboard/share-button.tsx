@@ -33,12 +33,12 @@ export default function ShareButton({ nodeId }: { nodeId: string }) {
         type="button"
         onClick={handleClick}
         disabled={pending}
-        className="rounded-md border border-neutral-700 px-3 py-1.5 text-sm transition hover:bg-neutral-900 disabled:opacity-60"
+        className="border border-line px-3 py-1.5 text-[11px] uppercase tracking-[0.12em] transition-colors hover:bg-ink hover:text-bg disabled:opacity-50"
       >
         {pending ? "..." : "Share"}
       </button>
       {toast ? (
-        <p className="max-w-xs truncate text-xs text-neutral-400" title={toast}>
+        <p className="max-w-xs truncate text-[11px] text-muted" title={toast}>
           {toast}
         </p>
       ) : null}
