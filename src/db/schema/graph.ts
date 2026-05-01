@@ -11,8 +11,17 @@ import {
 } from "drizzle-orm/pg-core";
 import { user } from "./auth";
 
-// 노드 타입 — 처음부터 일반 그래프 모델 (음악 도메인 특화 X)
-export const NODE_TYPES = ["track", "playlist", "person", "text_note"] as const;
+// 노드 타입 — 일반 그래프 + 음악 메타 속성 (artist/album/year/genre)
+export const NODE_TYPES = [
+  "track",
+  "playlist",
+  "person",
+  "text_note",
+  "artist",
+  "album",
+  "year",
+  "genre",
+] as const;
 export type NodeType = (typeof NODE_TYPES)[number];
 
 // 엣지 종류
@@ -26,17 +35,24 @@ export const nodes = pgTable(
     type: text("type").notNull(),
     title: text("title").notNull(),
     // 타입별 특수 필드는 metadata JSONB에 저장
-    // - track: { spotify_id, preview_url, duration_ms, artists[], album_image_url }
-    // - playlist: { spotify_id, image_url, owner_display_name }
+    // - track: { spotify_id, preview_url, duration_ms, artists[], album_image_url, album_id, release_date }
+    // - playlist: { spotify_id, image_url, owner_display_name, is_liked_songs }
     // - person: { auth_user_id, spotify_id, display_name }
     // - text_note: { body_md, summary }
+    // - artist: { spotify_id, image_url, genres[] }
+    // - album: { spotify_id, image_url, release_date }
+    // - year: { value }  (예: { value: '2023' })
+    // - genre: { value } (예: { value: 'k-pop' })
     metadata: jsonb("metadata").notNull().default(sql`'{}'::jsonb`),
     createdBy: text("created_by").references(() => user.id, { onDelete: "set null" }),
     createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
     updatedAt: timestamp("updated_at", { withTimezone: true }).notNull().defaultNow(),
   },
   (t) => [
-    check("nodes_type_check", sql`${t.type} IN ('track','playlist','person','text_note')`),
+    check(
+      "nodes_type_check",
+      sql`${t.type} IN ('track','playlist','person','text_note','artist','album','year','genre')`,
+    ),
     index("nodes_type_idx").on(t.type),
     index("nodes_created_by_idx").on(t.createdBy),
     // track dedupe: 같은 Spotify 트랙은 1개 node로 통합
@@ -47,6 +63,19 @@ export const nodes = pgTable(
     index("nodes_person_auth_user_idx")
       .on(sql`(metadata->>'auth_user_id')`)
       .where(sql`${t.type} = 'person'`),
+    // 메타 노드 dedupe (전역 — 사용자 무관, 모두가 공유)
+    uniqueIndex("nodes_artist_spotify_id_uniq")
+      .on(sql`(metadata->>'spotify_id')`)
+      .where(sql`${t.type} = 'artist'`),
+    uniqueIndex("nodes_album_spotify_id_uniq")
+      .on(sql`(metadata->>'spotify_id')`)
+      .where(sql`${t.type} = 'album'`),
+    uniqueIndex("nodes_year_value_uniq")
+      .on(sql`(metadata->>'value')`)
+      .where(sql`${t.type} = 'year'`),
+    uniqueIndex("nodes_genre_value_uniq")
+      .on(sql`(metadata->>'value')`)
+      .where(sql`${t.type} = 'genre'`),
   ],
 );
 

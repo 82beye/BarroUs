@@ -7,9 +7,11 @@ import { redirect } from "next/navigation";
 import { db } from "@/db/client";
 import { edges, nodes } from "@/db/schema";
 import { auth } from "@/lib/auth";
+import { getArtistsByIds } from "@/lib/spotify/artists";
 import { SpotifyApiError, SpotifyAuthExpiredError, spotifyFetch } from "@/lib/spotify/client";
 import { getPlaylistTracks } from "@/lib/spotify/playlists";
 import { ensurePersonNode } from "@/server/auth/ensure-person-node";
+import { ensureMetaNodes } from "@/server/graph/ensure-meta-nodes";
 import { getValidSpotifyToken } from "@/server/spotify/get-access-token";
 
 type ImportResult = { ok: true; nodeId: string } | { ok: false; error: string };
@@ -75,6 +77,17 @@ export async function importPlaylist(formData: FormData): Promise<ImportResult> 
     session.user.name ?? session.user.email,
   );
 
+  // 2.5) artist genres 사전 fetch (트랜잭션 외부 — 외부 API 호출이라)
+  const allArtistIds = Array.from(
+    new Set(
+      trackItems.flatMap((t) => (t.artists ?? []).map((a) => a.id).filter(Boolean) as string[]),
+    ),
+  );
+  const artistDetails = await getArtistsByIds(accessToken, allArtistIds).catch((err) => {
+    console.error("getArtistsByIds failed (genres skipped)", err);
+    return new Map();
+  });
+
   // 3) 트랜잭션: playlist node + track nodes + edges
   const playlistNodeId = await db.transaction(async (tx) => {
     // 3-1) playlist node insert (사용자별로 새로 생성 — D1 의사결정 #7)
@@ -99,6 +112,7 @@ export async function importPlaylist(formData: FormData): Promise<ImportResult> 
     // 3-2) track nodes — SELECT 기존 + INSERT 미존재
     const spotifyIds = trackItems.map((t) => t.id ?? null).filter((v): v is string => Boolean(v));
     const trackNodeIds: string[] = [];
+    const trackNodeIdBySpotifyId = new Map<string, string>();
 
     if (spotifyIds.length > 0) {
       // 기존 track lookup (부분 unique 인덱스 활용)
@@ -115,13 +129,12 @@ export async function importPlaylist(formData: FormData): Promise<ImportResult> 
           ),
         );
 
-      const idBySpotify = new Map<string, string>();
       for (const row of existing) {
-        idBySpotify.set(row.spotifyId, row.id);
+        trackNodeIdBySpotifyId.set(row.spotifyId, row.id);
       }
 
       // 미존재 트랙만 INSERT
-      const missing = trackItems.filter((t) => t.id && !idBySpotify.has(t.id));
+      const missing = trackItems.filter((t) => t.id && !trackNodeIdBySpotifyId.has(t.id));
       if (missing.length > 0) {
         const inserted = await tx
           .insert(nodes)
@@ -134,7 +147,10 @@ export async function importPlaylist(formData: FormData): Promise<ImportResult> 
                 preview_url: t.preview_url ?? null,
                 duration_ms: t.duration_ms ?? 0,
                 artists: (t.artists ?? []).map((a) => ({ id: a.id, name: a.name })),
+                album_id: t.album?.id ?? null,
+                album_name: t.album?.name ?? null,
                 album_image_url: t.album?.images?.[0]?.url ?? null,
+                release_date: t.album?.release_date ?? null,
                 spotify_url: t.external_urls?.spotify ?? null,
               },
               createdBy: session.user.id,
@@ -145,14 +161,14 @@ export async function importPlaylist(formData: FormData): Promise<ImportResult> 
             spotifyId: sql<string>`(${nodes.metadata}->>'spotify_id')`,
           });
         for (const row of inserted) {
-          idBySpotify.set(row.spotifyId, row.id);
+          trackNodeIdBySpotifyId.set(row.spotifyId, row.id);
         }
       }
 
       // 원본 순서대로 트랙 node id 모으기
       for (const t of trackItems) {
         if (!t.id) continue;
-        const id = idBySpotify.get(t.id);
+        const id = trackNodeIdBySpotifyId.get(t.id);
         if (id) trackNodeIds.push(id);
       }
     }
@@ -173,6 +189,11 @@ export async function importPlaylist(formData: FormData): Promise<ImportResult> 
 
     if (edgeValues.length > 0) {
       await tx.insert(edges).values(edgeValues).onConflictDoNothing();
+    }
+
+    // 3-4) 메타 노드 (artist/album/year/genre) + track→mentions→meta edges
+    if (trackItems.length > 0 && trackNodeIdBySpotifyId.size > 0) {
+      await ensureMetaNodes(tx, session.user.id, trackItems, trackNodeIdBySpotifyId, artistDetails);
     }
 
     return playlistRow.id;

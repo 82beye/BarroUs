@@ -3,7 +3,16 @@ import type { GraphEdge, GraphNode } from "@/server/queries/get-my-graph";
 export type NodeType = GraphNode["type"];
 export type EdgeKind = GraphEdge["kind"];
 
-export const NODE_TYPES: NodeType[] = ["person", "playlist", "track", "text_note"];
+export const NODE_TYPES: NodeType[] = [
+  "person",
+  "playlist",
+  "track",
+  "text_note",
+  "artist",
+  "album",
+  "year",
+  "genre",
+];
 export const EDGE_KINDS: EdgeKind[] = ["contains", "authored_by", "mentions"];
 
 export type ForceSettings = {
@@ -68,17 +77,30 @@ export const DEFAULT_DISPLAY: DisplaySettings = {
 };
 
 export const DEFAULT_FILTER: FilterSettings = {
-  types: { person: true, playlist: true, track: true, text_note: true },
+  types: {
+    person: true,
+    playlist: true,
+    track: true,
+    text_note: true,
+    artist: true,
+    album: true,
+    year: true,
+    genre: true,
+  },
   kinds: { contains: true, authored_by: true, mentions: true },
   hideOrphans: false,
   search: "",
 };
 
 export const NODE_COLOR: Record<NodeType, string> = {
-  person: "#E54A28", // accent
+  person: "#E54A28", // accent (orange)
   playlist: "var(--color-ink)",
   track: "var(--color-muted)",
   text_note: "#6B6B66",
+  artist: "#7B61FF", // 진한 보라 — 사람 의미
+  album: "#C68A4A", // 따뜻한 갈색
+  year: "#4A8FB4", // 시간 축 — 차분한 청
+  genre: "#3F8E5C", // 분류/카테고리 — 녹
 };
 
 export const EDGE_COLOR: Record<EdgeKind, string> = {

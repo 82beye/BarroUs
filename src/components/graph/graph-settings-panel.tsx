@@ -32,6 +32,10 @@ const NODE_TYPE_LABEL: Record<NodeType, string> = {
   playlist: "playlist",
   track: "track",
   text_note: "note",
+  artist: "artist",
+  album: "album",
+  year: "year",
+  genre: "genre",
 };
 
 const EDGE_KIND_LABEL: Record<EdgeKind, string> = {
@@ -187,6 +191,10 @@ export default function GraphSettingsPanel({
           <LegendRow color="#E54A28" label="person" />
           <LegendRow color="var(--color-ink)" label="playlist" />
           <LegendRow color="var(--color-muted)" label="track" />
+          <LegendRow color="#7B61FF" label="artist" />
+          <LegendRow color="#C68A4A" label="album" />
+          <LegendRow color="#4A8FB4" label="year" />
+          <LegendRow color="#3F8E5C" label="genre" />
           <LegendRow color="rgba(229,74,40,0.7)" label="authored_by" line />
           <LegendRow color="var(--color-line-soft)" label="contains / mentions" line />
         </div>

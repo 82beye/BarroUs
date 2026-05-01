@@ -30,6 +30,7 @@ const SpotifyAlbum = z
     id: z.string(),
     name: z.string(),
     images: z.array(SpotifyImage).nullish(),
+    release_date: z.string().nullish(), // "YYYY", "YYYY-MM", "YYYY-MM-DD"
   })
   .passthrough();
 
