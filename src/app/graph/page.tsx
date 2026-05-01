@@ -2,7 +2,7 @@ import { headers } from "next/headers";
 import Link from "next/link";
 import { redirect } from "next/navigation";
 import LogoutButton from "@/app/dashboard/logout-button";
-import GraphCanvas from "@/components/graph-canvas";
+import GraphView from "@/components/graph/graph-view";
 import ThemeToggle from "@/components/theme-toggle";
 import { auth } from "@/lib/auth";
 import { getMyGraph } from "@/server/queries/get-my-graph";
@@ -16,18 +16,10 @@ export default async function GraphPage() {
   const graph = await getMyGraph(session.user.id);
   const userName = session.user.name ?? session.user.email;
 
-  const counts = graph.nodes.reduce(
-    (acc, n) => {
-      acc[n.type] = (acc[n.type] ?? 0) + 1;
-      return acc;
-    },
-    {} as Record<string, number>,
-  );
-
   return (
-    <main className="mx-auto flex min-h-screen max-w-[1280px] flex-col px-5 pb-10 md:px-10">
+    <main className="flex min-h-screen flex-col">
       {/* MASTHEAD */}
-      <div className="grid grid-cols-[1fr_auto_1fr] items-end gap-6 border-b border-line pt-6 pb-3.5 md:pt-8">
+      <div className="mx-auto grid w-full max-w-[1480px] grid-cols-[1fr_auto_1fr] items-end gap-6 border-b border-line px-5 pt-6 pb-3.5 md:px-10 md:pt-8">
         <div className="flex gap-4 text-[11px] uppercase tracking-[0.12em]">
           <Link href="/dashboard" className="text-muted hover:text-accent">
             대시보드
@@ -38,7 +30,7 @@ export default async function GraphPage() {
           <em>Barro</em>
           <b className="not-italic font-sans font-semibold tracking-[-0.04em]">Us</b>
         </div>
-        <div className="flex justify-end items-baseline gap-3.5 text-[11px] uppercase tracking-[0.12em]">
+        <div className="flex items-baseline justify-end gap-3.5 text-[11px] uppercase tracking-[0.12em]">
           <ThemeToggle />
           <span className="text-muted">{userName}</span>
           <LogoutButton />
@@ -46,7 +38,7 @@ export default async function GraphPage() {
       </div>
 
       {/* META BAR */}
-      <div className="flex flex-wrap items-center justify-between gap-3 border-b border-line py-2.5 text-[11px] uppercase tracking-[0.12em]">
+      <div className="mx-auto flex w-full max-w-[1480px] flex-wrap items-center justify-between gap-3 border-b border-line px-5 py-2.5 text-[11px] uppercase tracking-[0.12em] md:px-10">
         <div>
           GRAPH <span className="text-accent">●</span> @{userName}
         </div>
@@ -56,38 +48,31 @@ export default async function GraphPage() {
         </div>
       </div>
 
-      {/* HERO */}
-      <section className="flex flex-wrap items-end justify-between gap-6 border-b border-line py-8 md:py-10">
-        <h1 className="display-type text-[clamp(36px,5.5vw,72px)]">
-          내 음악의 <em>지도</em>.
-        </h1>
-        <div className="font-mono text-[11px] uppercase tracking-[0.12em] text-muted">
-          {(counts.person ?? 0).toString().padStart(2, "0")} PERSON ·{" "}
-          {(counts.playlist ?? 0).toString().padStart(2, "0")} PLAYLIST ·{" "}
-          {(counts.track ?? 0).toString().padStart(2, "0")} TRACK
-        </div>
-      </section>
-
       {/* CANVAS */}
       {graph.nodes.length === 0 ? (
-        <div className="flex min-h-[60vh] flex-col items-center justify-center gap-3 border-b border-line">
-          <p className="font-serif text-2xl italic font-light">아직 그릴 게 없어요.</p>
+        <div className="flex flex-1 flex-col items-center justify-center gap-3 px-5 text-center">
+          <p className="font-serif text-3xl font-light italic">아직 그릴 게 없어요.</p>
+          <p className="max-w-[40ch] text-sm text-muted">
+            대시보드에서 좋아요 곡 또는 플리를 임포트하면, 그 노드들이 여기서 한 장의 지도처럼
+            떠오릅니다.
+          </p>
           <Link
             href="/dashboard"
-            className="border border-line px-3 py-1.5 text-[11px] uppercase tracking-[0.12em] hover:bg-ink hover:text-bg"
+            className="mt-2 inline-flex items-center gap-2 border border-line px-3 py-1.5 text-[11px] uppercase tracking-[0.12em] hover:bg-ink hover:text-bg"
           >
-            대시보드에서 플리 임포트 →
+            대시보드로 <span className="text-accent">→</span>
           </Link>
         </div>
       ) : (
-        <div className="relative h-[70vh] min-h-[480px] border-b border-line">
-          <GraphCanvas nodes={graph.nodes} edges={graph.edges} />
+        <div className="relative flex-1 overflow-hidden">
+          <GraphView nodes={graph.nodes} edges={graph.edges} />
         </div>
       )}
 
       {/* FOOTNOTE */}
-      <div className="mt-4 font-serif text-sm font-light italic text-muted">
-        node를 끌어 옮기거나 휠로 확대/축소해 보세요. 클릭하면 상세가 우측에 뜹니다.
+      <div className="mx-auto w-full max-w-[1480px] border-t border-line px-5 py-3 font-serif text-sm font-light italic text-muted md:px-10">
+        드래그로 노드를 끌어 옮기면 그 자리에 고정돼요. 호버하면 1차 이웃만 살아 있고 나머지는
+        흐려집니다. 우상단 settings에서 forces/filters/검색을 다 조정할 수 있어요.
       </div>
     </main>
   );
