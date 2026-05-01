@@ -20,11 +20,50 @@ export const auth = betterAuth({
     spotify: {
       clientId: env.server.SPOTIFY_CLIENT_ID,
       clientSecret: env.server.SPOTIFY_CLIENT_SECRET,
-      // Spotify Web API scope — D1 임포트에 필요한 최소
-      scope: ["user-read-private", "playlist-read-private", "playlist-read-collaborative"],
+      // 플리 임포트 + Liked Songs 임포트에 필요한 최소
+      scope: [
+        "user-read-private",
+        "playlist-read-private",
+        "playlist-read-collaborative",
+        "user-library-read",
+      ],
+      // Spotify display_name이 null이거나 email이 누락된 케이스 안전망
+      getUserInfo: async (token) => {
+        const res = await fetch("https://api.spotify.com/v1/me", {
+          headers: { Authorization: `Bearer ${token.accessToken}` },
+        });
+        if (!res.ok) {
+          console.error("[Spotify /me] failed", res.status, await res.text());
+          return null;
+        }
+        const profile = (await res.json()) as {
+          id: string;
+          display_name: string | null;
+          email?: string;
+          images?: { url: string }[];
+        };
+        if (!profile.email) {
+          console.error("[Spotify /me] email missing in profile");
+          return null;
+        }
+        return {
+          user: {
+            id: profile.id,
+            name: profile.display_name ?? profile.email,
+            email: profile.email,
+            image: profile.images?.[0]?.url,
+            emailVerified: false,
+          },
+          data: {
+            id: profile.id,
+            display_name: profile.display_name ?? profile.email,
+            email: profile.email,
+            images: profile.images ?? [],
+          },
+        };
+      },
     },
   },
-  // 사이드 프로젝트라 짧은 세션 + 자동 갱신 OFF (D1 단순화)
   session: {
     expiresIn: 60 * 60 * 24 * 7, // 7일
     updateAge: 60 * 60 * 24, // 1일
