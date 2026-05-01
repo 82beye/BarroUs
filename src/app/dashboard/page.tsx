@@ -2,6 +2,7 @@ import { headers } from "next/headers";
 import Image from "next/image";
 import Link from "next/link";
 import { redirect } from "next/navigation";
+import ThemeToggle from "@/components/theme-toggle";
 import { auth } from "@/lib/auth";
 import { SpotifyAuthExpiredError } from "@/lib/spotify/client";
 import { listMyPlaylists } from "@/lib/spotify/playlists";
@@ -59,6 +60,7 @@ export default async function DashboardPage() {
           <b className="not-italic font-sans font-semibold tracking-[-0.04em]">Us</b>
         </div>
         <div className="flex justify-end items-baseline gap-3.5 text-[11px] uppercase tracking-[0.12em]">
+          <ThemeToggle />
           <span className="text-muted">{userName}</span>
           <LogoutButton />
         </div>

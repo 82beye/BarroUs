@@ -1,4 +1,5 @@
 import Link from "next/link";
+import ThemeToggle from "@/components/theme-toggle";
 import LoginButton from "./login-button";
 
 type SearchParams = Promise<{ reason?: string }>;
@@ -19,8 +20,9 @@ export default async function LoginPage({ searchParams }: { searchParams: Search
           <em>Barro</em>
           <b className="not-italic font-sans font-semibold tracking-[-0.04em]">Us</b>
         </div>
-        <div className="hidden justify-end text-[11px] uppercase tracking-[0.12em] text-muted md:flex">
-          ENTRY · 003
+        <div className="hidden justify-end items-baseline gap-3.5 text-[11px] uppercase tracking-[0.12em] text-muted md:flex">
+          <ThemeToggle />
+          <span>ENTRY · 003</span>
         </div>
       </div>
 
