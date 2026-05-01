@@ -52,8 +52,9 @@ export default async function DashboardPage() {
       <div className="grid grid-cols-[1fr_auto_1fr] items-end gap-6 border-b border-line pt-6 pb-3.5 md:pt-8">
         <div className="flex gap-4 text-[11px] uppercase tracking-[0.12em]">
           <span className="text-ink">대시보드</span>
-          <span className="text-muted">임포트</span>
-          <span className="text-muted">공유</span>
+          <Link href="/graph" className="text-muted hover:text-accent">
+            그래프
+          </Link>
         </div>
         <div className="font-serif text-3xl italic leading-none tracking-[-0.02em] md:text-4xl md:text-center">
           <em>Barro</em>

@@ -75,20 +75,9 @@ export async function listMyPlaylists(accessToken: string): Promise<SpotifyPlayl
   const HARD_CAP = 200;
   const out: SpotifyPlaylistSummary[] = [];
   let url: string | null = `/me/playlists?limit=${PAGE_LIMIT}`;
-  let dumped = false;
 
   while (url && out.length < HARD_CAP) {
     const raw = await spotifyFetch<unknown>(accessToken, url);
-
-    // 진단: 첫 페이지 첫 아이템 raw dump (트랙 수 표시 이슈 추적용)
-    if (!dumped && typeof raw === "object" && raw !== null && "items" in raw) {
-      const items = (raw as { items?: unknown[] }).items;
-      if (items && items.length > 0) {
-        console.log("[Spotify /me/playlists] sample raw item:", JSON.stringify(items[0]));
-      }
-      dumped = true;
-    }
-
     const parsed = SpotifyPaging(SpotifyPlaylistSummarySchema).safeParse(raw);
     if (!parsed.success) {
       console.error("[Spotify /me/playlists] parse failed", parsed.error.issues.slice(0, 3));
