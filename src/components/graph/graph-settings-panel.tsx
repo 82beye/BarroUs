@@ -13,6 +13,7 @@ import {
 type Props = {
   force: ForceSettings;
   setForce: (next: ForceSettings) => void;
+  onAutoForce: () => void;
   display: DisplaySettings;
   setDisplay: (next: DisplaySettings) => void;
   filter: FilterSettings;
@@ -42,6 +43,7 @@ const EDGE_KIND_LABEL: Record<EdgeKind, string> = {
 export default function GraphSettingsPanel({
   force,
   setForce,
+  onAutoForce,
   display,
   setDisplay,
   filter,
@@ -115,6 +117,14 @@ export default function GraphSettingsPanel({
 
       {/* FORCES */}
       <Section title="Forces">
+        <button
+          type="button"
+          onClick={onAutoForce}
+          className="self-start border border-line px-2.5 py-1 text-[10px] uppercase tracking-[0.14em] transition-colors hover:bg-ink hover:text-bg"
+          title="현재 보이는 노드 수에 맞춰 자동 조정"
+        >
+          ⚡ Auto preset
+        </button>
         <SliderRow
           label="center"
           min={0}

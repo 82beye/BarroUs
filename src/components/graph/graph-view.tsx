@@ -5,9 +5,9 @@ import type { GraphEdge, GraphNode } from "@/server/queries/get-my-graph";
 import ForceGraphCanvas from "./force-graph-canvas";
 import GraphSettingsPanel from "./graph-settings-panel";
 import {
+  computeAutoForce,
   DEFAULT_DISPLAY,
   DEFAULT_FILTER,
-  DEFAULT_FORCE,
   type DisplaySettings,
   type FilterSettings,
   type ForceSettings,
@@ -20,13 +20,19 @@ type Props = {
 };
 
 export default function GraphView({ nodes, edges }: Props) {
-  const [force, setForce] = useState<ForceSettings>(DEFAULT_FORCE);
+  // 첫 마운트 시 노드 수 기반 자동 preset (이후엔 사용자 슬라이더가 우선)
+  const [force, setForce] = useState<ForceSettings>(() => computeAutoForce(nodes.length));
   const [display, setDisplay] = useState<DisplaySettings>(DEFAULT_DISPLAY);
   const [filter, setFilter] = useState<FilterSettings>(DEFAULT_FILTER);
   const [selected, setSelected] = useState<GraphNode | null>(null);
   const [panelOpen, setPanelOpen] = useState(true);
 
   const filtered = useGraphFilters(nodes, edges, filter);
+
+  /** Settings 패널의 "Auto" 버튼 — 현재 가시 노드 수 기준으로 force 재적용 */
+  const handleAutoForce = () => {
+    setForce(computeAutoForce(filtered.nodes.length));
+  };
 
   return (
     <div className="relative grid h-full w-full grid-cols-[1fr_auto]">
@@ -78,6 +84,7 @@ export default function GraphView({ nodes, edges }: Props) {
         <GraphSettingsPanel
           force={force}
           setForce={setForce}
+          onAutoForce={handleAutoForce}
           display={display}
           setDisplay={setDisplay}
           filter={filter}

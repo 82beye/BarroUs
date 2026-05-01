@@ -140,19 +140,26 @@ export default function ForceGraphCanvas({
   // biome-ignore lint/suspicious/noExplicitAny: 라이브러리 타입이 정의 안 된 메서드 사용
   const fgRef = useRef<any>(null);
 
-  // forces 적용
+  // forces 적용 — collide는 노드 크기에 비례 (겹침 방지의 핵심)
+  // 노드 시각 반지름 = sqrt(val) * nodeRelSize (nodeRelSize=4)
+  const sizeByDegree = display.sizeByDegree;
   useEffect(() => {
     const fg = fgRef.current;
     if (!fg) return;
     fg.d3Force("center", forceCenter(0, 0).strength(force.center));
     fg.d3Force("charge", forceManyBody().strength(-force.repel));
-    fg.d3Force("collide", forceCollide(8));
+    fg.d3Force(
+      "collide",
+      forceCollide<FGNode>((d) => Math.sqrt(1 + (d.degree ?? 0) * sizeByDegree) * 4 + 2).strength(
+        0.9,
+      ),
+    );
     const linkForce = fg.d3Force("link") as ForceLink<FGNode, FGLink> | undefined;
     if (linkForce) {
       linkForce.distance(force.linkDistance).strength(force.linkForce);
     }
     fg.d3ReheatSimulation();
-  }, [force]);
+  }, [force, sizeByDegree]);
 
   // 라벨 색 (다크 모드 대응)
   const [labelColor, setLabelColor] = useState("#0E0E0E");
@@ -235,10 +242,10 @@ export default function ForceGraphCanvas({
           }}
           linkDirectionalArrowLength={display.showArrows ? 4 : 0}
           linkDirectionalArrowRelPos={1}
-          // 인터랙션
+          // 인터랙션 — 노드 많을수록 천천히 안정화 (겹침 풀릴 시간 확보)
           cooldownTicks={Number.POSITIVE_INFINITY}
-          d3AlphaDecay={0.02}
-          d3VelocityDecay={0.3}
+          d3AlphaDecay={Math.max(0.005, 0.028 - nodes.length / 40000)}
+          d3VelocityDecay={0.35}
           enableNodeDrag={true}
           onNodeHover={(o) => {
             const n = o ? asNode(o) : null;
