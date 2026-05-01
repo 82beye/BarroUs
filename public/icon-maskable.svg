@@ -1,0 +1,15 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" role="img" aria-label="BarroUs">
+  <!-- maskable: 가장자리 20% safe-area를 비워 안드로이드 마스크와 충돌 안 하게 -->
+  <rect width="512" height="512" fill="#F2EFE7"/>
+  <text
+    x="256"
+    y="340"
+    text-anchor="middle"
+    font-family="-apple-system, BlinkMacSystemFont, 'Pretendard Variable', system-ui, sans-serif"
+    font-weight="900"
+    font-size="280"
+    letter-spacing="-15"
+    fill="#0E0E0E"
+  >B</text>
+  <circle cx="356" cy="356" r="22" fill="#E54A28"/>
+</svg>
