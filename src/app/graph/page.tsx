@@ -17,9 +17,10 @@ export default async function GraphPage() {
   const userName = session.user.name ?? session.user.email;
 
   return (
-    <main className="flex min-h-screen flex-col">
+    // viewport 전체를 차지 + 자식이 절대 넘치지 않게
+    <main className="flex h-screen flex-col overflow-hidden">
       {/* MASTHEAD */}
-      <div className="mx-auto grid w-full max-w-[1480px] grid-cols-[1fr_auto_1fr] items-end gap-6 border-b border-line px-5 pt-6 pb-3.5 md:px-10 md:pt-8">
+      <div className="grid shrink-0 grid-cols-[1fr_auto_1fr] items-end gap-6 border-b border-line px-5 pt-6 pb-3.5 md:px-10 md:pt-8">
         <div className="flex gap-4 text-[11px] uppercase tracking-[0.12em]">
           <Link href="/dashboard" className="text-muted hover:text-accent">
             대시보드
@@ -38,7 +39,7 @@ export default async function GraphPage() {
       </div>
 
       {/* META BAR */}
-      <div className="mx-auto flex w-full max-w-[1480px] flex-wrap items-center justify-between gap-3 border-b border-line px-5 py-2.5 text-[11px] uppercase tracking-[0.12em] md:px-10">
+      <div className="flex shrink-0 flex-wrap items-center justify-between gap-3 border-b border-line px-5 py-2.5 text-[11px] uppercase tracking-[0.12em] md:px-10">
         <div>
           GRAPH <span className="text-accent">●</span> @{userName}
         </div>
@@ -48,7 +49,7 @@ export default async function GraphPage() {
         </div>
       </div>
 
-      {/* CANVAS */}
+      {/* CANVAS — 메뉴 영역 제외한 화면 전체 차지 */}
       {graph.nodes.length === 0 ? (
         <div className="flex flex-1 flex-col items-center justify-center gap-3 px-5 text-center">
           <p className="font-serif text-3xl font-light italic">아직 그릴 게 없어요.</p>
@@ -64,16 +65,10 @@ export default async function GraphPage() {
           </Link>
         </div>
       ) : (
-        <div className="relative flex-1 overflow-hidden">
+        <div className="relative min-h-0 flex-1">
           <GraphView nodes={graph.nodes} edges={graph.edges} />
         </div>
       )}
-
-      {/* FOOTNOTE */}
-      <div className="mx-auto w-full max-w-[1480px] border-t border-line px-5 py-3 font-serif text-sm font-light italic text-muted md:px-10">
-        드래그로 노드를 끌어 옮기면 그 자리에 고정돼요. 호버하면 1차 이웃만 살아 있고 나머지는
-        흐려집니다. 우상단 settings에서 forces/filters/검색을 다 조정할 수 있어요.
-      </div>
     </main>
   );
 }

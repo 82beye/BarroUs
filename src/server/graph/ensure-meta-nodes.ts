@@ -48,10 +48,17 @@ export async function ensureMetaNodes(
   const allAlbumIds = new Set<string>();
   const allYears = new Set<string>();
   const allGenres = new Set<string>();
+  // track.artists에서 가수 이름 fallback (artistDetails fetch 실패 케이스 대비)
+  const trackArtistNames = new Map<string, string>();
 
   for (const t of tracks) {
     for (const a of t.artists ?? []) {
-      if (a.id) allArtistIds.add(a.id);
+      if (a.id) {
+        allArtistIds.add(a.id);
+        if (!trackArtistNames.has(a.id) && a.name) {
+          trackArtistNames.set(a.id, a.name);
+        }
+      }
     }
     if (t.album?.id) allAlbumIds.add(t.album.id);
     const year = extractYear(t.album?.release_date);
@@ -66,9 +73,11 @@ export async function ensureMetaNodes(
   // ── 2. ensure artist nodes ─────────────────────────
   const artistIdToNodeId = await ensureBySpotifyId(tx, "artist", allArtistIds, (sid) => {
     const detail = artistDetails.get(sid);
+    // title 우선순위: /v1/artists detail.name → track.artists.name → spotify_id
+    const title = detail?.name ?? trackArtistNames.get(sid) ?? sid;
     return {
       type: "artist" as const,
-      title: detail?.name ?? sid,
+      title,
       metadata: {
         spotify_id: sid,
         image_url: detail?.images?.[0]?.url ?? null,

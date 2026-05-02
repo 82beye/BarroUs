@@ -60,13 +60,13 @@ export function computeAutoForce(nodeCount: number): ForceSettings {
 
   return {
     // 노드 적으면 강한 중심력, 많으면 약하게 풀어줌
-    center: clamp(0.02, 0.1, 1 / Math.sqrt(n) / 1.6),
+    center: clamp(0.02, 0.12, 1 / Math.sqrt(n) / 1.4),
     // 노드 많을수록 강한 반발력 (겹침 방지의 핵심)
-    repel: clamp(60, 320, 50 + n * 0.7),
-    // 인장력은 노드 수와 무관하게 적당히
-    linkForce: clamp(0.25, 0.5, 0.5 - n / 4000),
+    repel: clamp(80, 420, 80 + n * 1.0),
+    // 인장력 — 노드 많으면 약화해 산개 허용
+    linkForce: clamp(0.2, 0.5, 0.5 - n / 3500),
     // 엣지 길이는 √n 비례로 길어짐
-    linkDistance: clamp(40, 140, 35 + Math.sqrt(n) * 5),
+    linkDistance: clamp(50, 180, 45 + Math.sqrt(n) * 6),
   };
 }
 

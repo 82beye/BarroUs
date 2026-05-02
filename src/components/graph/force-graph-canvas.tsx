@@ -150,8 +150,8 @@ export default function ForceGraphCanvas({
     fg.d3Force("charge", forceManyBody().strength(-force.repel));
     fg.d3Force(
       "collide",
-      forceCollide<FGNode>((d) => Math.sqrt(1 + (d.degree ?? 0) * sizeByDegree) * 4 + 2).strength(
-        0.9,
+      forceCollide<FGNode>((d) => Math.sqrt(1 + (d.degree ?? 0) * sizeByDegree) * 4 + 4).strength(
+        1.0,
       ),
     );
     const linkForce = fg.d3Force("link") as ForceLink<FGNode, FGLink> | undefined;
